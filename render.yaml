@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: password-generator-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python backend.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
