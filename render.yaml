@@ -1,9 +1,12 @@
 services:
   - type: web
-    name: password-generator
+    name: password-generator-web
     env: python
-    buildCommand: ""
-    startCommand: gunicorn backend:app
-    branch: master
-    autoDeploy: true
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn backend:app --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+
+
 
