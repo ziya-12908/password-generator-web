@@ -4,35 +4,35 @@ import random
 import string
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # Enable CORS for all routes
 
-@app.route("/generate-password", methods=["POST"])
+@app.route('/generate-password', methods=['POST'])
 def generate_password():
     data = request.get_json()
-    length = int(data.get("length", 12))
-    use_uppercase = data.get("uppercase", True)
-    use_lowercase = data.get("lowercase", True)
-    use_numbers = data.get("numbers", True)
-    use_symbols = data.get("symbols", True)
+    length = data.get('length', 12)
+    use_upper = data.get('uppercase', True)
+    use_lower = data.get('lowercase', True)
+    use_digits = data.get('numbers', True)
+    use_symbols = data.get('symbols', False)
 
-    characters = ""
-    if use_uppercase:
+    characters = ''
+    if use_upper:
         characters += string.ascii_uppercase
-    if use_lowercase:
+    if use_lower:
         characters += string.ascii_lowercase
-    if use_numbers:
+    if use_digits:
         characters += string.digits
     if use_symbols:
         characters += string.punctuation
 
     if not characters:
-        return jsonify({"error": "No character types selected"}), 400
+        return jsonify({'error': 'No character sets selected'}), 400
 
     password = ''.join(random.choice(characters) for _ in range(length))
-    return jsonify({"password": password})
+    return jsonify({'password': password})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+
+
 
 
 
