@@ -4,11 +4,18 @@ import random
 import string
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
-def generate_password(length, use_uppercase, use_lowercase, use_numbers, use_symbols):
+@app.route("/generate-password", methods=["POST"])
+def generate_password():
+    data = request.get_json()
+    length = int(data.get("length", 12))
+    use_uppercase = data.get("uppercase", True)
+    use_lowercase = data.get("lowercase", True)
+    use_numbers = data.get("numbers", True)
+    use_symbols = data.get("symbols", True)
+
     characters = ""
-    
     if use_uppercase:
         characters += string.ascii_uppercase
     if use_lowercase:
@@ -19,29 +26,18 @@ def generate_password(length, use_uppercase, use_lowercase, use_numbers, use_sym
         characters += string.punctuation
 
     if not characters:
-        raise ValueError("At least one character set must be selected")
+        return jsonify({"error": "No character types selected"}), 400
 
     password = ''.join(random.choice(characters) for _ in range(length))
-    return password
+    return jsonify({"password": password})
 
-@app.route('/generate-password', methods=['GET'])
-def generate_password_route():
-    try:
-        length = int(request.args.get('length', 12))  # Default length is 12
-        use_uppercase = request.args.get('uppercase', 'false').lower() == 'true'
-        use_lowercase = request.args.get('lowercase', 'true').lower() == 'true'
-        use_numbers = request.args.get('numbers', 'false').lower() == 'true'
-        use_symbols = request.args.get('symbols', 'false').lower() == 'true'
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
 
-        password = generate_password(length, use_uppercase, use_lowercase, use_numbers, use_symbols)
-        return jsonify({"password": password})
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
 
-if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 10000))  # Use port from environment variable
-    app.run(host='0.0.0.0', port=port)
+
+
+
 
 
 

@@ -4,140 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            background-color: #f4f4f9;
-        }
-
-        input, button {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        #password {
-            margin-top: 20px;
-            font-size: 1.5em;
-            color: #333;
-        }
-
-        .container {
-            width: 300px;
-            margin: 0 auto;
-        }
-
-        label {
-            font-size: 1em;
-        }
-
-        #length {
-            width: 50px;
-        }
-
-        .checkboxes {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        #copy-btn {
-            background-color: #008CBA;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css"> <!-- Optional for styling -->
 </head>
 <body>
     <div class="container">
         <h1>Password Generator</h1>
-
-        <!-- Password Length Input -->
         <div>
-            <label for="length">Password Length:</label>
-            <input type="number" id="length" min="1" max="20" value="12">
+            <label for="length">Length:</label>
+            <input type="number" id="length" min="8" max="128" value="16">
         </div>
-
-        <!-- Customization Checkboxes -->
-        <div class="checkboxes">
-            <div>
-                <input type="checkbox" id="uppercase"> Uppercase
-            </div>
-            <div>
-                <input type="checkbox" id="lowercase" checked> Lowercase
-            </div>
-            <div>
-                <input type="checkbox" id="numbers"> Numbers
-            </div>
-            <div>
-                <input type="checkbox" id="symbols"> Symbols
-            </div>
+        <div>
+            <label for="uppercase">Include Uppercase</label>
+            <input type="checkbox" id="uppercase">
         </div>
-
-        <!-- Generate Password Button -->
-        <button id="generate-password">Generate Password</button>
-
-        <!-- Generated Password Display -->
-        <div id="password"></div>
-
-        <!-- Copy to Clipboard Button -->
-        <button id="copy-btn" style="display:none;">Copy to Clipboard</button>
+        <div>
+            <label for="lowercase">Include Lowercase</label>
+            <input type="checkbox" id="lowercase">
+        </div>
+        <div>
+            <label for="numbers">Include Numbers</label>
+            <input type="checkbox" id="numbers">
+        </div>
+        <div>
+            <label for="symbols">Include Symbols</label>
+            <input type="checkbox" id="symbols">
+        </div>
+        <button id="generate-button">Generate Password</button>
+        <div id="password-container">
+            <p>Your generated password is:</p>
+            <p id="password-output"></p>
+            <button id="copy-button" style="display: none;">Copy to Clipboard</button>
+        </div>
     </div>
 
-    <script>
-        document.getElementById('generate-password').addEventListener('click', function() {
-            // Get the password length and customization options
-            const length = document.getElementById('length').value;
-            const uppercase = document.getElementById('uppercase').checked;
-            const lowercase = document.getElementById('lowercase').checked;
-            const numbers = document.getElementById('numbers').checked;
-            const symbols = document.getElementById('symbols').checked;
-
-            // Fetch request to the backend to generate password with customization
-            fetch(`http://127.0.0.1:5000/generate-password?length=${length}&uppercase=${uppercase}&lowercase=${lowercase}&numbers=${numbers}&symbols=${symbols}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Display generated password
-                    const password = data.password;
-                    document.getElementById('password').innerText = password;
-
-                    // Show copy to clipboard button
-                    document.getElementById('copy-btn').style.display = 'block';
-
-                    // Add functionality to copy button
-                    document.getElementById('copy-btn').addEventListener('click', function() {
-                        navigator.clipboard.writeText(password).then(function() {
-                            alert('Password copied to clipboard!');
-                        }).catch(function(err) {
-                            alert('Failed to copy password: ', err);
-                        });
-                    });
-                })
-                .catch(error => {
-                    document.getElementById('password').innerText = 'Error fetching password.';
-                    console.error('Error:', error);
-                });
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
+
+
+
+
+
 
 
 
