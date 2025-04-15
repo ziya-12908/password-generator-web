@@ -1,33 +1,46 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import random
 import string
+import logging
 
-# Initialize Flask app
 app = Flask(__name__)
-
-# Enable CORS to allow requests from different origins (like frontend hosted on Netlify)
+logging.basicConfig(level=logging.DEBUG)
+app.logger.setLevel(logging.DEBUG)
 CORS(app)
 
-# Define the route to handle POST requests for password generation
+@app.route('/')
+def serve_frontend():
+    app.logger.info("Serving frontend: index.html")
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    app.logger.info(f"Serving static file: {path}")
+    return send_from_directory('.', path)
+
+@app.route('/test', methods=['GET'])
+def test():
+    app.logger.info("Test route accessed")
+    return jsonify({"message": "Server is running!"})
+
 @app.route('/generate-password', methods=['POST'])
 def generate_password():
+    app.logger.info("Received request for /generate-password")
     try:
-        # Get the data sent in the POST request
-        data = request.get_json()
-
-        # Extract parameters or set default values if not provided
+        data = request.get_json(silent=True)
+        if not data:
+            app.logger.warning("No JSON data provided or invalid JSON")
+            return jsonify({"error": "No data provided"}), 400
+        app.logger.debug(f"Request data: {data}")
         password_length = data.get('length', 12)
         use_uppercase = data.get('uppercase', True)
         use_lowercase = data.get('lowercase', True)
         use_numbers = data.get('numbers', True)
         use_symbols = data.get('symbols', True)
-
-        # Validate the length parameter to be a positive integer
         if not isinstance(password_length, int) or password_length <= 0:
+            app.logger.warning(f"Invalid password length: {password_length}")
             return jsonify({"error": "Password length must be a positive integer"}), 400
-
-        # Initialize the pool of characters for password generation
         password_characters = ""
         if use_uppercase:
             password_characters += string.ascii_uppercase
@@ -37,22 +50,16 @@ def generate_password():
             password_characters += string.digits
         if use_symbols:
             password_characters += string.punctuation
-
-        # Ensure there are characters available to generate the password
         if not password_characters:
-            return jsonify({"error": "At least one character type (uppercase, lowercase, numbers, symbols) must be selected"}), 400
-
-        # Generate the password by randomly choosing characters from the pool
-        password = ''.join(random.choice(password_characters) for i in range(password_length))
-
-        # Return the generated password in the response
+            app.logger.warning("No character types selected")
+            return jsonify({"error": "At least one character type must be selected"}), 400
+        password = ''.join(random.choice(password_characters) for _ in range(password_length))
+        app.logger.info("Password generated successfully")
         return jsonify({"password": password})
-
     except Exception as e:
-        # Log any unexpected errors and return a 500 internal server error response
         app.logger.error(f"Error generating password: {str(e)}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
-# Run the app
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.logger.info("Starting Flask server on port 5001")
+    app.run(debug=True, host='0.0.0.0', port=5001)
